@@ -4,10 +4,18 @@ on:
   push:
     branches:
       - main
+      - master
     paths:
       - 'dataset_raw/**'
       - 'preprocessing/automate_sukmasuci.py'
+  pull_request:
+    branches:
+      - main
+      - master
   workflow_dispatch:  # Memungkinkan trigger manual
+
+permissions:
+  contents: write  # Penting untuk bisa commit
 
 jobs:
   preprocess:
@@ -16,28 +24,47 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+      with:
+        fetch-depth: 0
+    
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-        
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pandas numpy scikit-learn joblib
-        
+    
+    - name: Check files before preprocessing
+      run: |
+        echo "=== Checking repository structure ==="
+        ls -la
+        echo "=== Checking dataset_raw folder ==="
+        ls -la dataset_raw/ || echo "dataset_raw not found"
+        echo "=== Checking preprocessing folder ==="
+        ls -la preprocessing/ || echo "preprocessing not found"
+    
     - name: Run preprocessing script
       run: |
         cd preprocessing
         python automate_sukmasuci.py
-        
-    - name: Commit and push preprocessed data
+      
+    - name: Check preprocessing results
+      run: |
+        echo "=== Checking preprocessed_data_auto folder ==="
+        ls -la preprocessing/preprocessed_data_auto/ || echo "No output generated"
+    
+    - name: Commit preprocessed data
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add preprocessing/preprocessed_data_auto/
-        git diff --staged --quiet || git commit -m "Auto-update preprocessed dataset [skip ci]"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git diff --staged --quiet || git commit -m "Auto: Update preprocessed data [skip ci]"
+    
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
