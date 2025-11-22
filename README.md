@@ -137,17 +137,6 @@ Notebook berisi analisis mendalam:
 - **matplotlib & seaborn** - Visualisasi
 - **joblib** - Serialisasi model/pipeline
 
-## 📝 Catatan
-
-- Script preprocessing menggunakan pendekatan **OOP (Object-Oriented Programming)** untuk modularitas
-- Pipeline sklearn memastikan preprocessing yang konsisten antara train dan test
-- Timestamp pada output folder mencegah overwrite data
-- Stratified sampling menjaga distribusi target tetap seimbang
-
-## 👤 Author
-
-Eksperimen ini dibuat sebagai bagian dari pembelajaran Machine Learning dengan fokus pada preprocessing data dan exploratory data analysis.
-
 ---
 
 **Happy Coding!** 🎉
